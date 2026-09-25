@@ -14,6 +14,8 @@ import com.example.demo.entity.User;
 import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.JwtService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
@@ -28,7 +30,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto, Authentication authentication){
+    public ResponseEntity<User> register(@Valid @RequestBody RegisterUserDto registerUserDto, Authentication authentication){
         
         User registUser= authenticationService.signup(registerUserDto, authentication);
 
@@ -36,7 +38,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto){
+    public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginUserDto loginUserDto){
         
         User authenticatedUser= authenticationService.authenticate(loginUserDto);
         String jwtToken= jwtService.generateToken(authenticatedUser);

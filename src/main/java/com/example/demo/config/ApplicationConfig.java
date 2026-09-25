@@ -23,23 +23,6 @@ public class ApplicationConfig {
                 this.userRepository = userRepository;
         }
 
-        // InMemoryUserDetailsManager
-        // @Bean
-        // public UserDetailsManager userServiceDetailsManager() {
-
-        // UserDetails admin = User.withUsername(adminUsername)
-        // .password("{noop}" + adminPassword)
-        // .roles("ADMIN")
-        // .build();
-
-        // UserDetails user = User.withUsername(customerUsername)
-        // .password("{noop}" + customerPassword)
-        // .roles("USER")
-        // .build();
-
-        // return new InMemoryUserDetailsManager(admin, user);
-        // }
-
         @Bean
         UserDetailsService userDetailsService() {
                 return username -> userRepository.findByEmail(username)
