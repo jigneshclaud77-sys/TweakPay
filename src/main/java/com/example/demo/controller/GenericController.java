@@ -20,14 +20,12 @@ public class GenericController {
     ItemService itemService;
 
     @PostMapping(path = "/admin/fillItem", consumes = MediaType.APPLICATION_JSON_VALUE)
-    // @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> addItem(@RequestBody ItemRequestDto item) {
         itemService.addItem(item).orElseThrow();
         return ResponseEntity.ok("Success");
     }
 
     @GetMapping(path = "/admin/retriveAllItems")
-    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllAvailableUseres() {
         return ResponseEntity.ok(itemService.getAllItems().orElseThrow());
     }

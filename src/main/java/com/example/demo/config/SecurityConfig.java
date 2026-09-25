@@ -42,6 +42,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/auth/signup").hasAnyRole(ADMIN.name(), CUSTOMER.name())
                                                 .requestMatchers("/admin/*").hasRole(ADMIN.name())
                                                 .requestMatchers("/user/*").hasAnyRole(CUSTOMER.name(), AGENT.name(), ADMIN.name())
+                                                .requestMatchers("/customer/**").hasAnyRole(CUSTOMER.name(), AGENT.name(), ADMIN.name())
                                                 .anyRequest().authenticated())
                                 .httpBasic(Customizer.withDefaults()).formLogin(form -> form.disable())
                                 .csrf(csrf -> csrf.disable())
@@ -51,7 +52,7 @@ public class SecurityConfig {
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                                 .exceptionHandling(handle -> handle.accessDeniedHandler((request, response,
                                                 accessDeniedException) -> handlerExceptionResolver.resolveException(
-                                                                request, response, jwtAuthenticationFilter,
+                                                                request, response, null,
                                                                 accessDeniedException)))
                                 .build();
         }

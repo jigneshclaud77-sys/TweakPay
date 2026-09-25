@@ -1,17 +1,17 @@
 package com.example.demo.entity;
 
-import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.naming.AuthenticationException;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -53,6 +53,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatusCode());
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        ApiError apiError= new ApiError("Validation failed: "+message, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(apiError, apiError.getStatusCode());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(Exception e) {
         HttpStatus status;
@@ -64,8 +73,8 @@ public class GlobalExceptionHandler {
                 message = "Method not allowed: " + ex.getMessage();
             }
             case AuthorizationDeniedException ex -> {
-                status = HttpStatus.UNAUTHORIZED;
-                message = "Authorized role "+ SecurityContextHolder.getContext().getAuthentication().getAuthorities() +":"+ ex.getMessage();
+                status = HttpStatus.FORBIDDEN;
+                message = "Access denied: insufficient permission";
             }
             default -> {
                 status = HttpStatus.INTERNAL_SERVER_ERROR;
