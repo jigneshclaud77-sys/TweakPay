@@ -6,6 +6,7 @@ import com.example.demo.entity.RoleType;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 public class RegisterUserDto {
@@ -21,7 +22,7 @@ public class RegisterUserDto {
     @NotBlank(message = "Full name is required")
     private String fullName;
 
-    @NotBlank (message = "Roles are required")
+    @NotEmpty(message = "Roles are required")
     private Set<RoleType> roles;
 
     public String getEmail() {

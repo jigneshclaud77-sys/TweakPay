@@ -12,6 +12,7 @@ import com.example.demo.dto.LoginUserDto;
 import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.entity.RoleType;
 import com.example.demo.entity.User;
+import com.example.demo.exception.EmailAlreadyExistsException;
 import com.example.demo.repositories.UserRepository;
 
 @Service
@@ -34,6 +35,9 @@ public class AuthenticationService {
         .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
         if (!isAdmin) {
             input.setRoles(Set.of(RoleType.CUSTOMER));
+        }
+        if (userRepository.existsByEmail(input.getEmail())) {
+            throw new EmailAlreadyExistsException("Email is already registered");
         }
         User user = User.builder().fullName(input.getFullName()).email(input.getEmail()).password(passwordEncoder.encode(input.getPassword())).roles(input.getRoles()).build();
         return userRepository.save(user);
