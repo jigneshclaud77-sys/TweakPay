@@ -29,14 +29,13 @@ public class AuthenticationService {
     }
 
     public User signup(RegisterUserDto input, Authentication authentication){
-        System.out.print(authentication.getPrincipal());
-        final Set<RoleType> role = switch (authentication.getName()) {
-            case "customer" -> Set.of(RoleType.CUSTOMER);
-            case "admin" -> Set.of(RoleType.ADMIN, RoleType.CUSTOMER);
-            default -> throw new IllegalArgumentException("Unsupported principal");
-        };
-        
-        User user = User.builder().fullName(input.getFullName()).email(input.getEmail()).password(passwordEncoder.encode(input.getPassword())).roles(role).build();
+        //if logged in user is customer then remove other roles and only CUSTOMER role should be there, if loggedin user is admin then allow all roles 
+        boolean isAdmin = authentication.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin) {
+            input.setRoles(Set.of(RoleType.CUSTOMER));
+        }
+        User user = User.builder().fullName(input.getFullName()).email(input.getEmail()).password(passwordEncoder.encode(input.getPassword())).roles(input.getRoles()).build();
         return userRepository.save(user);
     }
 

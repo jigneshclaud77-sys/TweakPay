@@ -5,12 +5,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+      - "5005:5005"  # Debugging port exposed to host
     environment:
       DB_HOST: springwithmysql
       DB_PORT: 3306
       DB_NAME: taskdb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: secret
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     depends_on:
       - springwithmysql
     networks:

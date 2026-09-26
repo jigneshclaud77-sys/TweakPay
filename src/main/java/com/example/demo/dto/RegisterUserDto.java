@@ -1,5 +1,9 @@
 package com.example.demo.dto;
 
+import java.util.Set;
+
+import com.example.demo.entity.RoleType;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,6 +20,9 @@ public class RegisterUserDto {
 
     @NotBlank(message = "Full name is required")
     private String fullName;
+
+    @NotBlank (message = "Roles are required")
+    private Set<RoleType> roles;
 
     public String getEmail() {
         return email;
@@ -34,5 +41,11 @@ public class RegisterUserDto {
     }
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+    public Set<RoleType> getRoles() {
+        return roles;
+    }
+    public void setRoles(Set<RoleType> roles) {
+        this.roles = roles;
     }    
 }
