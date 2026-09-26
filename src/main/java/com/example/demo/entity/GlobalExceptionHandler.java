@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.demo.dto.ApiError;
+import com.example.demo.exception.EmailAlreadyExistsException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -26,6 +27,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiError> handleUserNameNotFoundException(UsernameNotFoundException ex){
         ApiError apiError= new ApiError("Username not found with username: "+ex.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(apiError, apiError.getStatusCode());
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex){
+        ApiError apiError= new ApiError(ex.getMessage(), HttpStatus.CONFLICT);
         return new ResponseEntity<>(apiError, apiError.getStatusCode());
     }
 

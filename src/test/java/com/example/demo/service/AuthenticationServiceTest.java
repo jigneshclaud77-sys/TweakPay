@@ -3,10 +3,14 @@ package com.example.demo.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,12 +19,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.dto.LoginUserDto;
 import com.example.demo.dto.RegisterUserDto;
 import com.example.demo.entity.RoleType;
 import com.example.demo.entity.User;
+import com.example.demo.exception.EmailAlreadyExistsException;
 import com.example.demo.repositories.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +58,7 @@ class AuthenticationServiceTest {
 
     @Test
     void signup_assignsCustomerRole_whenCallerIsCustomer() {
-        when(authentication.getName()).thenReturn("customer");
+        doReturn(List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"))).when(authentication).getAuthorities();
         when(passwordEncoder.encode(any())).thenReturn("encoded");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -63,21 +69,27 @@ class AuthenticationServiceTest {
 
     @Test
     void signup_assignsAdminAndCustomerRoles_whenCallerIsAdmin() {
-        when(authentication.getName()).thenReturn("admin");
+        doReturn(List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))).when(authentication).getAuthorities();
         when(passwordEncoder.encode(any())).thenReturn("encoded");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User result = authenticationService().signup(registerDto(), authentication);
+        RegisterUserDto dto = registerDto();
+        dto.setRoles(Set.of(RoleType.ADMIN, RoleType.CUSTOMER));
+
+        User result = authenticationService().signup(dto, authentication);
 
         assertThat(result.getRoles()).containsExactlyInAnyOrder(RoleType.ADMIN, RoleType.CUSTOMER);
     }
 
     @Test
-    void signup_throwsIllegalArgumentException_whenCallerIsUnsupported() {
-        when(authentication.getName()).thenReturn("someone-else");
+    void signup_throwsEmailAlreadyExistsException_whenEmailAlreadyRegistered() {
+        doReturn(List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"))).when(authentication).getAuthorities();
+        when(userRepository.existsByEmail(any())).thenReturn(true);
 
         assertThatThrownBy(() -> authenticationService().signup(registerDto(), authentication))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(EmailAlreadyExistsException.class);
+
+        verify(userRepository, never()).save(any());
     }
 
     @Test

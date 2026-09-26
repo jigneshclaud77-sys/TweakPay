@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.example.demo.dto.LoginUserDto;
 import com.example.demo.entity.RoleType;
 import com.example.demo.entity.User;
+import com.example.demo.exception.EmailAlreadyExistsException;
 import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -93,7 +94,7 @@ class AuthenticationControllerTest {
         when(authenticationService.signup(any(), any())).thenReturn(newUser);
 
         String body = """
-                {"email":"new@example.com","password":"Password123","fullName":"New User"}
+                {"email":"new@example.com","password":"Password123","fullName":"New User","roles":["CUSTOMER"]}
                 """;
 
         mockMvc.perform(post("/auth/signup")
@@ -105,12 +106,39 @@ class AuthenticationControllerTest {
     @Test
     void signup_withBlankFullName_returnsBadRequest() throws Exception {
         String body = """
-                {"email":"new@example.com","password":"Password123","fullName":""}
+                {"email":"new@example.com","password":"Password123","fullName":"","roles":["CUSTOMER"]}
                 """;
 
         mockMvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void signup_withEmptyRoles_returnsBadRequest() throws Exception {
+        String body = """
+                {"email":"new@example.com","password":"Password123","fullName":"New User","roles":[]}
+                """;
+
+        mockMvc.perform(post("/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void signup_withDuplicateEmail_returnsConflict() throws Exception {
+        when(authenticationService.signup(any(), any()))
+                .thenThrow(new EmailAlreadyExistsException("Email is already registered"));
+
+        String body = """
+                {"email":"new@example.com","password":"Password123","fullName":"New User","roles":["CUSTOMER"]}
+                """;
+
+        mockMvc.perform(post("/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isConflict());
     }
 }
