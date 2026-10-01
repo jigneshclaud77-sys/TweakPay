@@ -19,9 +19,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
-@Table(name = "orders")
 @Entity
-public class Order {
+@Table(name = "orders")
+public class Order extends BaseAuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
