@@ -12,14 +12,16 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import com.example.demo.dto.PaymentEvent;
+
 @Configuration
 public class KafkaProducerConfig {
 
-    @Value("${kafka.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
+    public KafkaTemplate<String, PaymentEvent> kafkaTemplate() {
 
         Map<String, Object> props = new HashMap<>();
 

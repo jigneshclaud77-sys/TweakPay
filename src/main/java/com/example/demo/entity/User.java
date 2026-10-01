@@ -1,13 +1,10 @@
 package com.example.demo.entity;
 
-import java.sql.Date;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,12 +25,12 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 
-@Table(name = "users")
 @Entity
+@Table(name = "users")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements UserDetails {
+public class User extends BaseAuditEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -60,14 +57,6 @@ public class User implements UserDetails {
     public void setRoles(Set<RoleType> roles) {
         this.roles = roles;
     }
-
-    @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
-    private Date createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private Date updatedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

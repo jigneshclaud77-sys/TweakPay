@@ -1,17 +1,10 @@
 package com.example.demo.entity;
 
-import java.sql.Date;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import com.example.demo.config.UserAuditListner;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumeratedValue;
@@ -26,18 +19,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
-@Getter
+@Entity
 @Table(name = "item", uniqueConstraints = {
         @UniqueConstraint(name = "name", columnNames = { "item_name" })
 }, check = {
         @CheckConstraint(name = "chk_amount", constraint = "amount >= 0 and amount <= 100000000")
 })
-@Entity
-@EntityListeners(UserAuditListner.class)
-@AllArgsConstructor
+@Getter
+@Builder
 @NoArgsConstructor
-public class Item {
+@AllArgsConstructor
+public class Item extends BaseAuditEntity {
 
     @Id
     @GeneratedValue
@@ -57,20 +49,6 @@ public class Item {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "status")
     private AvailableStatus status;
-
-    @Column(name = "created_by")
-    private String createdBy;
-
-    @Column(name = "updated_by")
-    private String updatedBy;
-
-    @CreationTimestamp
-    @Column(updatable = false, name = "created_at")
-    private Date createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "update_at")
-    private Date updateAt;
 
     public enum AvailableStatus {
         ACTIVE(1),

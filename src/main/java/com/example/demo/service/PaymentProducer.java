@@ -10,13 +10,13 @@ public class PaymentProducer {
 
     private static final String TOPIC = "payment-events";
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;
 
-    public PaymentProducer(KafkaTemplate<String, Object> kafkaTemplate) {
+    public PaymentProducer(KafkaTemplate<String, PaymentEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
     public void send(PaymentEvent event) {
-        kafkaTemplate.send(TOPIC, event.accountId(), event);
+        kafkaTemplate.send(TOPIC, event.transactionId(), event);
     }
 }
