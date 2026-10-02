@@ -1,15 +1,19 @@
 package com.example.demo.service;
 
 import org.springframework.kafka.annotation.BackOff;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.PaymentEvent;
 
 @Service 
 public class PaymentConsumer {
+
 
     @RetryableTopic(
         attempts = "4",
@@ -27,8 +31,8 @@ public class PaymentConsumer {
         System.out.println("Payment processed successfully: "+ event.transactionId());
     }
 
-    @KafkaListener(topics = "payment-events.DLT", groupId = "payment-dlt-service")
-    public void consumeDlt(PaymentEvent event) {
+    @DltHandler
+    public void handleDlt(PaymentEvent event, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         System.out.println("Received event in DLT: " + event.transactionId());
     }
 

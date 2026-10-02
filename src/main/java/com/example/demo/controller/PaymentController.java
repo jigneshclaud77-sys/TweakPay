@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +19,7 @@ public class PaymentController {
     }
 
     @PostMapping
-    public String send(PaymentEvent event) {
+    public String send(@RequestBody PaymentEvent event) {
         paymentProducer.send(event);
         return "Payment sent";
     }
