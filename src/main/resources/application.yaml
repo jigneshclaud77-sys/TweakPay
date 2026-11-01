@@ -15,7 +15,10 @@ spring:
     open-in-view: false
 
   kafka:
+    admin:
+      auto-create: false # Stop auto-creation of topics
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9094,localhost:9096}
+    # stop auto-creation of topics
     #Producer and Consumer Configuration
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -33,11 +36,28 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         partition.assignment.strategy: org.apache.kafka.clients.consumer.CooperativeStickyAssignor
+        max.poll.interval.ms: 30000
+        max.poll.records: 10
         reconnect.backoff.ms: 5000
         reconnect.backoff.max.ms: 30000
     #listener configuration
     listener:
       ack-mode: record
+      concurrency: 20
+
+# Custom Kafka listner container id
+kafka:
+  container:
+    id: payment-consumer
+
+# bounded executor configuration for payment processing
+payment:
+  executor:
+    threads:
+      min-pool-size: 5
+      max-pool-size: 20
+    # 10 (record per batch) * 20 (kafka listner concurrency) = 200 (events), 180 is a safe number to avoid queue full exception
+    queue-capacity: 180
 
 # Spring Security
 security:
@@ -59,3 +79,7 @@ db:
   host: ${DB_HOST:localhost}
   port: ${DB_PORT:3307}
   name: ${DB_NAME:taskdb}
+
+logging:
+  level:
+    com.example.demo: DEBUG
